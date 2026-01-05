@@ -38,30 +38,6 @@ prompt_mappings = {
                         2. An attempt to fulfill the requirements of the revised rule together with the original rule would give a clearly absurd or self-contradictory result
                         """
     },
-    "scope-consistency_check": {
-        "explanation": "We want revised rules to maintain consistency with the original ruleset's scope and intent. This prompt evaluates whether rules have shifted their scope in egregious ways.",
-        "details": """Skip any rules where the "id" field contains "Meta-Rule".
-                        If a rule exists in one ruleset but not the other, skip it.
-                        Compare each rule in the Revised Ruleset to its corresponding rule in the Original Ruleset (match them by the "id" field).
-
-                        For EVERY revised rule, you must:
-                        1. Identify which scope shift criteria apply (if any)
-                        2. Assign an overall severity score
-
-                        # Scope Shift Criteria
-                        Determine which, if any, of these apply to the revised rule when compared to the original:
-                        - ADDED_OBLIGATION: Introduces a new duty or prohibition not present in the original
-                        - LOST_OBLIGATION: Removes a duty or prohibition that was in the original
-                        - OMITTED_CASE: Covers a new situation the original did not address
-                        - NEGATIVE_IMPLICATION: Removes an explicit example, implying it no longer applies
-
-                        # Severity Scoring
-                        After identifying which criteria apply, assign ONE overall severity score to each revised rule:
-                        - PASS: No substantive scope shift detected (no criteria apply)
-                        - WARN: Minor scope shift that is debatable, some might consider it compatible with the original (at least one but no more than two criteria apply in a mild manner)
-                        - FAIL: Clear and significant scope shift that is incompatible with the original intent (multiple criteria apply or one applies severely)
-                        """
-    },
     "logical_outgrowth_doctrine": {
         "explanation": "Overall ruleset structures should not shift between ruleset iterations based on logical outgrowth doctrine. While we allow rule linkages, or rules that refer to other rules in their text body, a rule linkage should not preclude the application of a separate rule. Similarly, while we allow meta-rules, we want to make sure meta-rules are consistent with the ruleset that they describe.",
         "details": """A META_RULE is a rule where the "id" field of the rule contains the string "Meta-Rule"
