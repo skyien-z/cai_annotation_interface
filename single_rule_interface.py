@@ -4,6 +4,8 @@ import json
 choices = ["PASS", "WARN", "FAIL"]
 NUMBER_OF_RULES_TO_ANNOTATE = 10
 
+output_path = "output_annotations.jsonl"
+
 def get_og_rule_by_id(index):
     return get_rule_by_id("rulesets/prompt1.jsonl", index)
 
@@ -20,7 +22,21 @@ def get_rule_by_id(jsonl_path, index):
     jsonl_fp.close()         
     return ""
 
-def submit_button(og_rule, revised_rule, severity_score, extra_feedback, rule_id):
+def submit_annotation(prolific_id, og_rule, revised_rule, severity_score, extra_feedback, rule_id):
+    data_to_save = {
+        "prolific_id": prolific_id,
+        "rule_id": rule_id,
+        "og_rule": og_rule,
+        "revised_rule": revised_rule,
+        "severity_score": severity_score,
+        "extra_feedback": extra_feedback
+    }
+
+    with open(output_path, "a") as output_fp:
+        json.dump(data_to_save, output_fp)
+        output_fp.write('\n')
+    output_fp.close()
+
     if rule_id == NUMBER_OF_RULES_TO_ANNOTATE - 1:
         return gr.Column(visible=False), rule_id + 1, None, None, gr.Markdown("# Thank you for your annotations!\nPlease feel free to exit this screen.", visible=True)
     return gr.Column(), rule_id + 1, None, None, None
@@ -68,18 +84,9 @@ with gr.Blocks(theme=gr.themes.Ocean(text_size='lg')) as demo:
     start_screen_enter.click(start_screen_submit, [prolific_id], [start_screen, annotation_interface, annotation_instructions]).then(
         update_rules, [rule_id], [og_rule, revised_rule]
     )
-    submission_button.click(submit_button, 
-                            [og_rule, revised_rule, severity_score, extra_feedback, rule_id], 
+    submission_button.click(submit_annotation, 
+                            [prolific_id, og_rule, revised_rule, severity_score, extra_feedback, rule_id], 
                             [annotation_interface, rule_id, severity_score, extra_feedback, end_screen])
     rule_id.change(update_rules, [rule_id], [og_rule, revised_rule])
 
 demo.launch()
-
-# 1. next need to read in from jsonl's
-# # # question --> how to map from jsonl's? have just 1 jsonl?
-# 2. need to map to something to be saved.
-# # # save into hf repo.
-# 3. map to prolific thingy
-# # # later later? home screen
-# 4. how to operate later? dump into a jsonl
-# if original rule and revised rule return empty results
